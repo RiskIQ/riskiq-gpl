@@ -1,4 +1,4 @@
-package sun.security.x509;
+package com.riskiq.core.net;
 
 /*
  * Copyright (c) 1996, 2020, Oracle and/or its affiliates. All rights reserved.
@@ -34,7 +34,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.security.*;
-import java.security.spec.AlgorithmParameterSpec;
 import java.security.cert.*;
 import java.security.cert.Certificate;
 import java.util.*;
@@ -45,6 +44,8 @@ import javax.security.auth.x500.X500Principal;
 import sun.misc.HexDumpEncoder;
 import sun.security.util.*;
 import sun.security.provider.X509Factory;
+import sun.security.x509.*;
+import sun.security.x509.Extension;
 
 /**
  * copied from sun.security.x509.X509CertImpl.
@@ -101,7 +102,7 @@ public class RiqX509CertImpl extends X509CertImpl implements DerEncoder {
     // Certificate data, and its envelope
     private byte[]              signedCert = null;
     protected RiqX509CertInfo info = null;
-    protected AlgorithmId       algId = null;
+    protected AlgorithmId algId = null;
     protected byte[]            signature = null;
 
     // recognized extension OIDS
@@ -1100,7 +1101,7 @@ public class RiqX509CertImpl extends X509CertImpl implements DerEncoder {
                 return null;
             }
             Set<String> extSet = new TreeSet<>();
-            for (Extension ex : exts.getAllExtensions()) {
+            for (sun.security.x509.Extension ex : exts.getAllExtensions()) {
                 if (ex.isCritical()) {
                     extSet.add(ex.getExtensionId().toString());
                 }
@@ -1130,7 +1131,7 @@ public class RiqX509CertImpl extends X509CertImpl implements DerEncoder {
                 return null;
             }
             Set<String> extSet = new TreeSet<>();
-            for (Extension ex : exts.getAllExtensions()) {
+            for (sun.security.x509.Extension ex : exts.getAllExtensions()) {
                 if (!ex.isCritical()) {
                     extSet.add(ex.getExtensionId().toString());
                 }
@@ -1149,7 +1150,7 @@ public class RiqX509CertImpl extends X509CertImpl implements DerEncoder {
      * @return Extension or null if certificate does not contain this
      *         extension
      */
-    public Extension getExtension(ObjectIdentifier oid) {
+    public sun.security.x509.Extension getExtension(ObjectIdentifier oid) {
         if (info == null) {
             return null;
         }
@@ -1163,11 +1164,11 @@ public class RiqX509CertImpl extends X509CertImpl implements DerEncoder {
             if (extensions == null) {
                 return null;
             } else {
-                Extension ex = extensions.get(oid.toString());
+                sun.security.x509.Extension ex = extensions.get(oid.toString());
                 if (ex != null) {
                     return ex;
                 }
-                for (Extension ex2: extensions.getAllExtensions()) {
+                for (sun.security.x509.Extension ex2: extensions.getAllExtensions()) {
                     if (ex2.getExtensionId().equals((Object)oid)) {
                         //XXXX May want to consider cloning this
                         return ex2;
@@ -1181,7 +1182,7 @@ public class RiqX509CertImpl extends X509CertImpl implements DerEncoder {
         }
     }
 
-    public Extension getUnparseableExtension(ObjectIdentifier oid) {
+    public sun.security.x509.Extension getUnparseableExtension(ObjectIdentifier oid) {
         if (info == null) {
             return null;
         }
@@ -1212,7 +1213,7 @@ public class RiqX509CertImpl extends X509CertImpl implements DerEncoder {
         try {
             ObjectIdentifier findOID = new ObjectIdentifier(oid);
             String extAlias = OIDMap.getName(findOID);
-            Extension certExt = null;
+            sun.security.x509.Extension certExt = null;
             CertificateExtensions exts = (CertificateExtensions)info.get(
                     CertificateExtensions.NAME);
 
@@ -1222,7 +1223,7 @@ public class RiqX509CertImpl extends X509CertImpl implements DerEncoder {
                     return null;
                 }
 
-                for (Extension ex : exts.getAllExtensions()) {
+                for (sun.security.x509.Extension ex : exts.getAllExtensions()) {
                     ObjectIdentifier inCertOID = ex.getExtensionId();
                     if (inCertOID.equals((Object)findOID)) {
                         certExt = ex;

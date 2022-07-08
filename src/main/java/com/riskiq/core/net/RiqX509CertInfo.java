@@ -23,7 +23,7 @@
  * questions.
  */
 
-package sun.security.x509;
+package com.riskiq.core.net;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -33,6 +33,8 @@ import java.util.*;
 
 import sun.security.util.*;
 import sun.misc.HexDumpEncoder;
+import sun.security.x509.*;
+import sun.security.x509.Extension;
 
 
 /**
@@ -293,12 +295,12 @@ public class RiqX509CertInfo implements CertAttrSet<String> {
             sb.append("  Subject Id:\n" + subjectUniqueId.toString() + "\n");
         }
         if (extensions != null) {
-            Collection<Extension> allExts = extensions.getAllExtensions();
-            Extension[] exts = allExts.toArray(new Extension[0]);
+            Collection<sun.security.x509.Extension> allExts = extensions.getAllExtensions();
+            sun.security.x509.Extension[] exts = allExts.toArray(new sun.security.x509.Extension[0]);
             sb.append("\nCertificate Extensions: " + exts.length);
             for (int i = 0; i < exts.length; i++) {
                 sb.append("\n[" + (i+1) + "]: ");
-                Extension ext = exts[i];
+                sun.security.x509.Extension ext = exts[i];
                 try {
                     if (OIDMap.getClass(ext.getExtensionId()) == null) {
                         sb.append(ext.toString());
@@ -318,7 +320,7 @@ public class RiqX509CertInfo implements CertAttrSet<String> {
                     sb.append(", Error parsing this extension");
                 }
             }
-            Map<String,Extension> invalid = extensions.getUnparseableExtensions();
+            Map<String, sun.security.x509.Extension> invalid = extensions.getUnparseableExtensions();
             if (invalid.isEmpty() == false) {
                 sb.append("\nUnparseable certificate extensions: " + invalid.size());
                 int i = 1;
