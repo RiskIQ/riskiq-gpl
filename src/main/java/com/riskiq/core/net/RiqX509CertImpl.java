@@ -34,6 +34,7 @@ import java.io.InputStreamReader;
 import java.security.*;
 import java.security.cert.*;
 import java.security.cert.Certificate;
+import java.util.Date;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -50,7 +51,21 @@ public class RiqX509CertImpl extends X509CertImpl implements DerEncoder {
     private static final long serialVersionUID = -3457612960190864406L;
 
     private static final String DOT = ".";
+    /**
+     * Public attribute names.
+     */
+    public static final String NAME = "x509";
+    public static final String INFO = RiqX509CertInfo.NAME;
 
+    /**
+     * The following are defined for ease-of-use. These
+     * are the most frequently retrieved attributes.
+     */
+
+    // x509.info.version.value
+    public static final String VERSION = NAME + DOT + INFO + DOT +
+            RiqX509CertInfo.VERSION + DOT +
+            CertificateVersion.VERSION;
 
     // when we sign and decode we set this to true
     // this is our means to make certificates immutable
@@ -203,6 +218,19 @@ public class RiqX509CertImpl extends X509CertImpl implements DerEncoder {
     }
 
     /**
+     * Returned the encoding as an uncloned byte array. Callers must
+     * guarantee that they neither modify it nor expose it to untrusted
+     * code.
+     */
+    public byte[] getEncodedInternal() throws CertificateEncodingException {
+        if (signedCert == null) {
+            throw new CertificateEncodingException(
+                    "Null certificate to encode");
+        }
+        return signedCert;
+    }
+
+    /**
      * Set the requested attribute in the certificate.
      *
      * @param name the name of the attribute.
@@ -246,6 +274,24 @@ public class RiqX509CertImpl extends X509CertImpl implements DerEncoder {
         }
     }
 
+    /**
+     * Gets the serial number from the certificate as
+     * a SerialNumber object.
+     *
+     * @return the serial number.
+     */
+    public SerialNumber getSerialNumberObject() {
+        if (info == null)
+            return null;
+        try {
+            SerialNumber ser = (SerialNumber)info.get(
+                    CertificateSerialNumber.NAME + DOT +
+                            CertificateSerialNumber.NUMBER);
+            return ser;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
     /**
      * Gets the subject distinguished name from the certificate.
@@ -321,6 +367,66 @@ public class RiqX509CertImpl extends X509CertImpl implements DerEncoder {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * Gets the notBefore date from the validity period of the certificate.
+     *
+     * @return the start date of the validity period.
+     */
+    public Date getNotBefore() {
+        if (info == null)
+            return null;
+        try {
+            Date d = (Date) info.get(CertificateValidity.NAME + DOT +
+                    CertificateValidity.NOT_BEFORE);
+            return d;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Gets the notAfter date from the validity period of the certificate.
+     *
+     * @return the end date of the validity period.
+     */
+    public Date getNotAfter() {
+        if (info == null)
+            return null;
+        try {
+            Date d = (Date) info.get(CertificateValidity.NAME + DOT +
+                    CertificateValidity.NOT_AFTER);
+            return d;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Gets the signature algorithm name for the certificate
+     * signature algorithm.
+     * For example, the string "SHA-1/DSA" or "DSS".
+     *
+     * @return the signature algorithm name.
+     */
+    public String getSigAlgName() {
+        if (algId == null)
+            return null;
+        return (algId.getName());
+    }
+
+    /**
+     * Gets the signature algorithm OID string from the certificate.
+     * For example, the string "1.2.840.10040.4.3"
+     *
+     * @return the signature algorithm oid string.
+     */
+    public String getSigAlgOID() {
+        if (algId == null)
+            return null;
+        ObjectIdentifier oid = algId.getOID();
+        return (oid.toString());
     }
 
     /**
